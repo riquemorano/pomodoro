@@ -1,5 +1,4 @@
 
-from ast import Return
 from os import system
 from pygame import mixer
 import time
@@ -41,11 +40,12 @@ def choice_method():
         elif choice == 4:
             return METOTHOD5217
         elif choice == len(choices)-1:
+            clear()
             work_time = int(input("Work time (minutes): "))
             pause_time = int(input("Pause time (minutes): "))
             long_pause_time = int(input("Long pause time (minutes): "))
             cycles = int(input("Number of cycles: "))
-            return {"work": work_time, "pause": pause_time, "long_pause": long_pause_time, "cycles": cycles}
+            return {"work_time": work_time, "pause_time": pause_time, "long_pause_time": long_pause_time, "cycles": cycles}
         elif choice == 0:
             exit()
         else:
@@ -57,12 +57,13 @@ def choice_method():
         return choice_method()
     except KeyboardInterrupt:
         exit()
+    except EOFError:
+        exit()
 
 
 def music(song):
     mixer.init()
     mixer.music.load(f'audio/{song}.mp3')
-    mixer.music.play()
     mixer.music.play()
 
 
@@ -83,21 +84,31 @@ def pomodoro(choice):
 
 
 def clock(minutes, stage):
-    seconds = 0
-    while seconds < minutes * 60:
-        time.sleep(1)
-        seconds += 1
-        clear()
-        print(f"{stage} for {minutes} minutes")
-        missing = time.strftime(
-            "%H:%M:%S", time.gmtime((minutes * 60) - seconds))
-        print(f'Time Left: {missing}')
+    now = time.time()
+    after = now + (minutes * 60)
+    now = time.strftime("%H:%M:%S", time.localtime(now))
+    after = time.strftime("%H:%M:%S", time.localtime(after))
+    print(f"{stage} started at {now}")
+    print(f"{stage} ends at {after}")
+    while True:
+        now = time.time()
+        now = time.strftime("%H:%M:%S", time.localtime(now))
+        if now == after:
+            clear()
+            break
+    
 
 
 def main():
+
     clear()
     choice = choice_method()
-    pomodoro(choice)
+    clear()
+    try:
+        pomodoro(choice)
+    except KeyboardInterrupt:
+        return main()
+    
 
 
 main()
